@@ -19,6 +19,7 @@ import com.ms.user.service.entities.Hotel;
 import com.ms.user.service.entities.Rating;
 import com.ms.user.service.entities.User;
 import com.ms.user.service.exception.UserNotFoundException;
+import com.ms.user.service.external_service.services.HotelService;
 import com.ms.user.service.repositories.UserRepository;
 import com.ms.user.service.services.UserService;
 import org.springframework.web.client.RestTemplate;
@@ -30,6 +31,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    private HotelService hotelService;
 
     private Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
@@ -59,8 +63,9 @@ public class UserServiceImpl implements UserService {
 
         
         List<Rating> ratingList = ratings.stream().map(rating -> {
-            ResponseEntity<Hotel> forEntity = restTemplate.getForEntity("http://HOTEL-SERVICE/api/hotels/get-hotel/"+rating.getHotelId(), Hotel.class);
-            Hotel hotel = forEntity.getBody();
+            // ResponseEntity<Hotel> forEntity = restTemplate.getForEntity("http://HOTEL-SERVICE/api/hotels/get-hotel/"+rating.getHotelId(), Hotel.class);
+
+            Hotel hotel = hotelService.getHotel(rating.getHotelId());
             rating.setHotel(hotel);
             return rating;
         }).collect(Collectors.toList());

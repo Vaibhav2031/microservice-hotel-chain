@@ -3,12 +3,13 @@ package com.ms.user.service;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = "com.ms.user.service.repositories")
 @EnableEurekaServer
+@EnableFeignClients
 public class UserServiceApplication {
 
 	public static void main(String[] args) {
