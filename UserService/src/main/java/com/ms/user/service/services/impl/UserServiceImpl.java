@@ -1,8 +1,12 @@
 package com.ms.user.service.services.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
+import org.bouncycastle.asn1.x509.Holder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.ms.user.service.entities.Hotel;
 import com.ms.user.service.entities.Rating;
 import com.ms.user.service.entities.User;
 import com.ms.user.service.exception.UserNotFoundException;
@@ -48,12 +53,19 @@ public class UserServiceImpl implements UserService {
         User user = this.userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id " + userId));
         // fetch rating for this user
-        ArrayList<Rating> ratings = restTemplate.getForObject("http://localhost:8083/api/ratings/get-ratings-by-user/"+user.getUserId(), ArrayList.class);
-
+        Rating[] ratingsOfUser = restTemplate.getForObject("http://localhost:8083/api/ratings/get-ratings-by-user/"+user.getUserId(), Rating[].class);
+        List<Rating> ratings = Arrays.stream(ratingsOfUser).toList();
         logger.info("{}",ratings);
 
-        user.setRating(ratings);
-
+        
+        List<Rating> ratingList = ratings.stream().map(rating -> {
+            ResponseEntity<Hotel> forEntity = restTemplate.getForEntity("http://localhost:8082/api/hotels/get-hotel/"+rating.getHotelId(), Hotel.class);
+            Hotel hotel = forEntity.getBody();
+            rating.setHotel(hotel);
+            return rating;
+        }).collect(Collectors.toList());
+        
+        user.setRating(ratingList);
 
         return user;
     }
