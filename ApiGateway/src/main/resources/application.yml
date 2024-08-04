@@ -16,7 +16,7 @@ spring:
               - id: path_route
                 uri: http://192.168.1.9:8082
                 predicates:
-                  - Path= /api/hotels/{segment}
+                  - Path= /api/hotels/{segment},/api/staffs/{segment}
 
               - id: path_route
                 uri: http://192.168.1.9:8083
